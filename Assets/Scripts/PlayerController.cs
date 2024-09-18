@@ -11,10 +11,6 @@ public class PlayerController : MonoBehaviour
     private int desiredLane = 1; //0:left 1:middle 2:right
     public float laneDistance = 4; //the distance between two lanes
 
-    public AudioSource leftLaneAudio;  // AudioSource for left lane
-    public AudioSource centerLaneAudio; // AudioSource for center lane
-    public AudioSource rightLaneAudio;  // AudioSource for right lane
-
     public float jumpForce;
     public float Gravity = -20;
 
@@ -23,6 +19,13 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        StartCoroutine(PlayInitialLaneAudio());
+    }
+
+    // Play the default lane audio after a short delay to ensure AudioManager is ready
+    IEnumerator PlayInitialLaneAudio()
+    {
+        yield return new WaitForSeconds(0.1f);  // Small delay to ensure AudioManager is initialized
         FindObjectOfType<AudioManager>().PlaySound(currentLaneAudio);  // Start by playing the center lane sound
     }
 
