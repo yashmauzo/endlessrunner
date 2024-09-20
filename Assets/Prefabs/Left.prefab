@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 6944655490780705267}
   - component: {fileID: 7987291834817407605}
   - component: {fileID: 1284451649697947288}
+  - component: {fileID: 3532108343234616657}
   m_Layer: 0
   m_Name: TrafficCone
   m_TagString: Obstacle
@@ -139,6 +140,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0139999995, y: 0.013999997, z: 0.15377478}
   m_Center: {x: 0, y: 0, z: 0.06988739}
+--- !u!114 &3532108343234616657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4406652654405267198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc13ff33f38e12248b6365cb373adca6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warningDistance: 250
 --- !u!1 &6307566412700464904
 GameObject:
   m_ObjectHideFlags: 0

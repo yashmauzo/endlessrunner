@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 1318495471774447355}
   - component: {fileID: 7108981633603983876}
   - component: {fileID: 749682773992121179}
+  - component: {fileID: 4583664226506554785}
   m_Layer: 0
   m_Name: TrafficConeR
   m_TagString: Obstacle
@@ -247,6 +248,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0139999995, y: 0.013999997, z: 0.15377478}
   m_Center: {x: 0, y: 0, z: 0.06988739}
+--- !u!114 &4583664226506554785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7385685469984507019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc13ff33f38e12248b6365cb373adca6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warningDistance: 250
 --- !u!1 &7918839558842602717
 GameObject:
   m_ObjectHideFlags: 0
@@ -259,6 +273,7 @@ GameObject:
   - component: {fileID: 9166319482212762887}
   - component: {fileID: 6638715566919791300}
   - component: {fileID: 3351874288655923138}
+  - component: {fileID: 7353489734300768751}
   m_Layer: 0
   m_Name: TrafficConeL
   m_TagString: Obstacle
@@ -353,3 +368,16 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0139999995, y: 0.013999997, z: 0.15377478}
   m_Center: {x: 0, y: 0, z: 0.06988739}
+--- !u!114 &7353489734300768751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7918839558842602717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc13ff33f38e12248b6365cb373adca6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warningDistance: 250

@@ -14,20 +14,23 @@ public class PlayerController : MonoBehaviour
     public float jumpForce;
     public float Gravity = -20;
 
-    private string currentLaneAudio = "CenterLane";  // Keeps track of the current lane audio playing
+    private AudioManager audioManager;  // Reference to the AudioManager
+
+    // private string currentLaneAudio = "CenterLane";  // Keeps track of the current lane audio playing
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        StartCoroutine(PlayInitialLaneAudio());
+        // StartCoroutine(PlayInitialLaneAudio());
+        audioManager = FindObjectOfType<AudioManager>();  // Get the AudioManager reference
     }
 
     // Play the default lane audio after a short delay to ensure AudioManager is ready
-    IEnumerator PlayInitialLaneAudio()
-    {
-        yield return new WaitForSeconds(0.1f);  // Small delay to ensure AudioManager is initialized
-        FindObjectOfType<AudioManager>().PlaySound(currentLaneAudio);  // Start by playing the center lane sound
-    }
+    // IEnumerator PlayInitialLaneAudio()
+    // {
+    //     yield return new WaitForSeconds(0.1f);  // Small delay to ensure AudioManager is initialized
+    //     FindObjectOfType<AudioManager>().PlaySound(currentLaneAudio);  // Start by playing the center lane sound
+    // }
 
     // Update is called once per frame
     void Update()
@@ -61,7 +64,8 @@ public class PlayerController : MonoBehaviour
             desiredLane++;
             if (desiredLane == 3)
                 desiredLane = 2;
-            UpdateLaneAudio();  // Trigger lane audio update
+            // UpdateLaneAudio();  // Trigger lane audio update
+            UpdateLaneAudioPan();  // Update the panning instead of stopping/starting songs
         }
 
         //if(Input.GetKeyDown(KeyCode.LeftArrow))
@@ -70,7 +74,8 @@ public class PlayerController : MonoBehaviour
             desiredLane--;
             if (desiredLane == -1)
                 desiredLane = 0;
-            UpdateLaneAudio();  // Trigger lane audio update
+            // UpdateLaneAudio();  // Trigger lane audio update
+            UpdateLaneAudioPan();  // Update the panning instead of stopping/starting songs
         }
 
         //Calculate where we should be in the future
@@ -99,28 +104,52 @@ public class PlayerController : MonoBehaviour
         // UpdateAudioFeedback();
     }
 
-    private void UpdateLaneAudio()
-    {
-        // Stop the current lane audio
-        FindObjectOfType<AudioManager>().StopSound(currentLaneAudio);
+    // private void UpdateLaneAudio()
+    // {
+    //     // Stop the current lane audio
+    //     FindObjectOfType<AudioManager>().StopSound(currentLaneAudio);
 
-        // Update the audio based on the lane the player is in
+    //     // Update the audio based on the lane the player is in
+    //     switch (desiredLane)
+    //     {
+    //         case 0: // Left lane
+    //             currentLaneAudio = "LeftLane";
+    //             break;
+    //         case 1: // Center lane
+    //             currentLaneAudio = "CenterLane";
+    //             break;
+    //         case 2: // Right lane
+    //             currentLaneAudio = "RightLane";
+    //             break;
+    //     }
+
+    //     // Play the new lane audio
+    //     FindObjectOfType<AudioManager>().PlaySound(currentLaneAudio);
+    // }
+
+    // Update audio panning based on the lane
+    private void UpdateLaneAudioPan()
+    {
+        float panValue = 0f;  // Default to center
+
+        // Adjust panning based on the desired lane
         switch (desiredLane)
         {
-            case 0: // Left lane
-                currentLaneAudio = "LeftLane";
+            case 0:  // Left lane
+                panValue = -1f;  // Left ear only
                 break;
-            case 1: // Center lane
-                currentLaneAudio = "CenterLane";
+            case 1:  // Center lane
+                panValue = 0f;   // Both ears
                 break;
-            case 2: // Right lane
-                currentLaneAudio = "RightLane";
+            case 2:  // Right lane
+                panValue = 1f;   // Right ear only
                 break;
         }
 
-        // Play the new lane audio
-        FindObjectOfType<AudioManager>().PlaySound(currentLaneAudio);
+        // Call the AudioManager to update the stereo pan
+        audioManager.SetLaneAudioPan(panValue);
     }
+
     private void FixedUpdate()
     {
         if (!PlayerManager.isGameStarted)
