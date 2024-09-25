@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc13ff33f38e12248b6365cb373adca6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warningDistance: 250
+  warningDistance: 200
 --- !u!4 &1895820996521145108 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 037846b4b252b874d82dd4b7a22fd802, type: 3}

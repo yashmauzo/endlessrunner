@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc13ff33f38e12248b6365cb373adca6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warningDistance: 250
+  warningDistance: 100
+  safeDistanceAfterPass: 20
 --- !u!1 &6307566412700464904
 GameObject:
   m_ObjectHideFlags: 0

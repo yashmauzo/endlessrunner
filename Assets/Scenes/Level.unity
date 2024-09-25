@@ -788,7 +788,7 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: LaneMusic
     clip: {fileID: 8300000, guid: 5a2f86f2c8ae5e3498f0d960afa72b02, type: 3}
-    volume: 0.5
+    volume: 0.2
     loop: 1
     spatialBlend: 0
     source: {fileID: 0}
