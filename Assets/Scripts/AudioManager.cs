@@ -4,40 +4,43 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-    public Sound[] sounds;
-
-    // public AudioSource warningAudioSource;  // Global warning audio source for obstacles
-    private AudioSource laneAudioSource;  // Reference to the single AudioSource for lane music
-    private Sound warningSound;           // Reference to the warning sound in the sounds array
+    public Sound[] sounds;  // Array to hold all sound objects used in the game
+    private AudioSource laneAudioSource;  // Reference to the AudioSource for the lane background music
+    private Sound warningSound;           // Reference to the AudioSource for the lane background music
 
     // Start is called before the first frame update
     void Start()
     {
+        // Loop through all sounds and initialize each sound's AudioSource component
         foreach (Sound s in sounds)
         {
+            // Create a new AudioSource for each sound and assign its clip and properties
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
-            s.source.loop = s.loop;
-            // Set spatialBlend based on whether it's a 2D or 3D sound
-            s.source.spatialBlend = s.spatialBlend;  // Make sure Sound class has a spatialBlend property
+            s.source.loop = s.loop;     // Set looping if applicable
 
-            // Check for the LaneMusic sound
+            // Set spatial blend to control 3D sound behavior (0 for 2D, 1 for 3D)
+            s.source.spatialBlend = s.spatialBlend;  // SpatialBlend should be a property in the Sound class
+
+            // Assign the background music to the laneAudioSource and start playing it
             if (s.name == "LaneMusic")
             {
-                laneAudioSource = s.source;  // Assign the lane music to this source
-                laneAudioSource.Play();      // Start playing the music
+                laneAudioSource = s.source;  // Store the lane music source reference
+                laneAudioSource.Play();      // Start playing the lane music
             }
 
-            // Check for the WarningSound and store its reference
+            // Store reference to the warning sound for later use
             if (s.name == "WarningSound")
             {
-                warningSound = s;  // Store the reference to the warning sound
+                warningSound = s;  // Store the reference to the warning sound object
             }
         }
     }
 
+    // Play a sound by name
     public void PlaySound(string name)
     {
+        // Find the sound by its name and play it
         foreach (Sound s in sounds)
         {
             if (s.name == name)
@@ -45,25 +48,31 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    // Play the warning sound for obstacles, adjusting its volume based on proximity
     public void PlayWarningSound(float volume)
     {
+        // Ensure the warning sound is available and not already playing
         if (warningSound != null && !warningSound.source.isPlaying)
         {
-            warningSound.source.volume = volume;  // Set volume based on proximity
-            warningSound.source.Play();
+            warningSound.source.volume = volume;  // Adjust the volume based on proximity to the obstacle
+            warningSound.source.Play();     // Play the warning sound
         }
     }
 
+    // Stop the warning sound if it's playing
     public void StopWarningSound()
     {
+        // Ensure the warning sound is available and currently playing
         if (warningSound != null && warningSound.source.isPlaying)
         {
-            warningSound.source.Stop();
+            warningSound.source.Stop();     // Stop the warning sound
         }
     }
 
+    // Stop any sound by name
     public void StopSound(string name)
     {
+        // Find the sound by its name and stop it
         foreach (Sound s in sounds)
         {
             if (s.name == name)
@@ -71,12 +80,13 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    // Method to update the stereo pan of the lane music
+    // Update the stereo panning for the lane music, allowing sound to come from left or right
     public void SetLaneAudioPan(float panValue)
     {
+        // Ensure the laneAudioSource is available and update its panning
         if (laneAudioSource != null)
         {
-            laneAudioSource.panStereo = panValue;
+            laneAudioSource.panStereo = panValue;   // Set pan value (-1 for left ear, 1 for right ear)
         }
     }
 }

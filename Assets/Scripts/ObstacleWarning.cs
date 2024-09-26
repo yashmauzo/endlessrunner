@@ -4,30 +4,31 @@ using UnityEngine;
 
 public class ObstacleWarning : MonoBehaviour
 {
-    // public AudioSource warningAudioSource; // The warning audio source for the obstacle
-    public float warningDistance = 200f;    // Distance at which the warning should start
-    public float vibrationDistance = 30f;   // Distance at which haptic feedback should trigger
-    public float safeDistanceAfterPass = 20f; // Extra distance after crossing to stop the sound
+    public float warningDistance = 200f;    // Distance at which the warning sound should start playing
+    public float vibrationDistance = 30f;   // Distance at which haptic feedback (vibration) should trigger
+    public float safeDistanceAfterPass = 20f; // Distance after passing the obstacle when the warning should stop
     private Transform player;              // Reference to the player's position
-    private PlayerController playerController; // Reference to the player's lane info
-    private AudioManager audioManager;     // Reference to the AudioManager
-    private bool isWarningPlaying = false;
-    private static ObstacleWarning closestObstacle = null;  // Static reference to the closest obstacle
-    private bool isVibrating = false;  // Track if the haptic feedback is already triggered
+    private PlayerController playerController; // Reference to the PlayerController script for lane info
+    private AudioManager audioManager;     // Reference to the AudioManager for sound control
+    private bool isWarningPlaying = false;      // Track whether the warning sound is currently playing
+    private static ObstacleWarning closestObstacle = null;  // Static reference to keep track of the closest obstacle
+    private bool isVibrating = false;  // Track whether the haptic feedback (vibration) is already triggered
 
 
+    // Called when the script starts, initializes player and AudioManager references
     void Start()
     {
-        // Find the player and the AudioManager in the scene
+        // Find the player in the scene using its tag
         GameObject playerObject = GameObject.FindWithTag("Player");
-        audioManager = FindObjectOfType<AudioManager>(); // Find the AudioManager
+        audioManager = FindObjectOfType<AudioManager>(); // Get the AudioManager reference from the scene
 
+        // Check if player is found
         if (playerObject != null)
         {
-            player = playerObject.transform;
-            playerController = playerObject.GetComponent<PlayerController>();
+            player = playerObject.transform;        // Get the player's transform for position tracking
+            playerController = playerObject.GetComponent<PlayerController>();      // Get lane information from the PlayerController script
 
-            // Check if PlayerController is attached
+            // If the PlayerController script is not found, display an error
             if (playerController == null)
             {
                 Debug.LogError("PlayerController script not found on the Player object!");
@@ -39,37 +40,39 @@ public class ObstacleWarning : MonoBehaviour
         }
     }
 
+    // Called once per frame, checks the player's position and updates the warning sound or haptic feedback
     void Update()
     {
-        // Check if the game has started
+        // Stop all warnings if the game has not started yet
         if (!PlayerManager.isGameStarted)
         {
-            StopWarningSound();  // Ensure warning sounds are not playing before the game starts
-            StopVibration();     // Stop vibration when the game hasn't started
-            return;
+            StopWarningSound();  // Ensure warning sound is stopped
+            StopVibration();     // Ensure vibration is stopped
+            return;     // Exit the function if the game hasn't started
         }
 
+        // Proceed if the player is found
         if (player != null && playerController != null)
         {
-            // Calculate the Z distance to the player
+            // Calculate the Z-axis distance between the obstacle and the player
             float distanceToPlayerZ = transform.position.z - player.position.z;
 
-            // Check if the player is in the same lane and approaching the obstacle
+            // Check if the player is in the same lane, approaching, and if this is the closest obstacle
             if (IsPlayerInSameLane() && IsPlayerApproaching() && IsClosestObstacle())
             {
-                PlayWarningSound();
-                TriggerHapticFeedback(distanceToPlayerZ);  // Trigger haptic feedback if close
+                PlayWarningSound();     // Play obstacle warning sound if conditions are met
+                TriggerHapticFeedback(distanceToPlayerZ);  // Trigger haptic feedback based on proximity
             }
+            // If the player moves out of the lane or is no longer approaching the obstacle, stop warnings
             else if (!IsPlayerInSameLane() || isWarningPlaying && !IsPlayerPastObstacle())
             {
-                // If the player is no longer in the same lane, stop the sound
-                StopWarningSound();
-                StopVibration();  // Stop vibration if not in the same lane or if past the obstacle
+                StopWarningSound();     // Stop sound if no longer relevant
+                StopVibration();  // Stop vibration if no longer necessary
             }
             else
             {
-                StopWarningSound();
-                StopVibration();
+                StopWarningSound();     // Ensure warning sound stops
+                StopVibration();        // Ensure vibration stops
             }
         }
     }
@@ -77,88 +80,94 @@ public class ObstacleWarning : MonoBehaviour
     // Check if the player is in the same lane as the obstacle
     bool IsPlayerInSameLane()
     {
-        float laneDistance = playerController.laneDistance;
-        float distanceToPlayerX = Mathf.Abs(transform.position.x - player.position.x);
+        float laneDistance = playerController.laneDistance;     // Distance between lanes
+        float distanceToPlayerX = Mathf.Abs(transform.position.x - player.position.x);      // Horizontal distance
 
-        // Return true if the player is in the same lane (small difference on the X axis)
+        // Return true if the player is in the same lane (small difference in X position)
         return distanceToPlayerX < laneDistance / 2;
     }
 
-    // Check if the player is approaching the obstacle (within the warning distance)
+    // Check if the player is approaching the obstacle within the warning distance
     bool IsPlayerApproaching()
     {
         float distanceToPlayerZ = transform.position.z - player.position.z;
 
-        // If the obstacle is ahead of the player and within the warning distance
+        // Return true if the obstacle is ahead of the player and within the warning distance
         return distanceToPlayerZ > 0 && distanceToPlayerZ < warningDistance;
     }
 
+    // Check if the player has passed the obstacle completely
     bool IsPlayerPastObstacle()
     {
         float distanceToPlayerZ = transform.position.z - player.position.z;
 
-        // Return true if the player has crossed the obstacle (distance becomes negative or beyond the safe distance)
+        // Return true if the player has crossed the obstacle (Z distance becomes negative or beyond the safe distance)
         return distanceToPlayerZ < -safeDistanceAfterPass;
     }
 
-    // Check if this obstacle is the closest one in the same lane as the player
+    // Check if this is the closest obstacle in the player's current lane
     bool IsClosestObstacle()
     {
         float distanceToPlayerZ = transform.position.z - player.position.z;
 
-        // If this obstacle is in the same lane and there is no closest obstacle, or if this obstacle is closer, update the reference
+        // Return true if this is the closest obstacle in the lane
         if (IsPlayerInSameLane() && (closestObstacle == null || distanceToPlayerZ < closestObstacle.GetDistanceToPlayer()))
         {
-            closestObstacle = this;  // Set this as the closest obstacle in the player's lane
+            closestObstacle = this;  // Mark this obstacle as the closest
             return true;
         }
 
-        return closestObstacle == this;  // This is the closest obstacle if it's already set as such
+        return closestObstacle == this;  // Return true if this is already marked as the closest obstacle
     }
 
+    // Get the Z distance between this obstacle and the player
     float GetDistanceToPlayer()
     {
         return Mathf.Abs(transform.position.z - player.position.z);
     }
 
-    // Notify the AudioManager to play the warning sound
+    // Play warning sound based on proximity to the player
     void PlayWarningSound()
     {
+        // If warning sound is not already playing, play it and adjust volume based on distance
         if (!isWarningPlaying)
         {
             float distanceToPlayerZ = transform.position.z - player.position.z;
-            float volume = Mathf.Lerp(1.0f, 0.0f, distanceToPlayerZ / warningDistance);
-            audioManager.PlayWarningSound(volume);
-            isWarningPlaying = true;
+            float volume = Mathf.Lerp(1.0f, 0.0f, distanceToPlayerZ / warningDistance);     // Calculate volume based on distance
+            audioManager.PlayWarningSound(volume);      // Play warning sound through AudioManager
+            isWarningPlaying = true;        // Mark that warning sound is playing
         }
     }
 
-    // Notify the AudioManager to stop the warning sound
+    // Stop the warning sound
     void StopWarningSound()
     {
+        // Stop warning sound and reset flag
         if (isWarningPlaying)
         {
-            audioManager.StopWarningSound();
-            isWarningPlaying = false;
+            audioManager.StopWarningSound();    // Stop the sound via AudioManager
+            isWarningPlaying = false;       // Mark that the warning sound is stopped
         }
     }
 
-    // Trigger haptic feedback (vibration) based on proximity to the obstacle
+    // Trigger haptic feedback (vibration) when the player is close enough to the obstacle
     void TriggerHapticFeedback(float distanceToPlayerZ)
     {
+        // Trigger vibration only if it's not already triggered and the player is within the vibration distance
         if (!isVibrating && distanceToPlayerZ <= vibrationDistance)
         {
-            Handheld.Vibrate();  // Trigger the vibration on mobile devices
+            Handheld.Vibrate();  // Trigger vibration on mobile devices
             isVibrating = true;  // Mark vibration as triggered
         }
     }
 
-    // Stop vibration when no longer necessary
+    // Stop haptic feedback
     void StopVibration()
     {
+        // Reset vibration state (vibration stops automatically on most devices)
         if (isVibrating)
         {
-            isVibrating = false;  // Reset vibration trigger (vibration will stop automatically after a short time)
+            isVibrating = false;  // Reset vibration trigger
         }
     }
 }
